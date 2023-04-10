@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+    <div class="posts-grid">
+        {% for post in object_list %}
+        
+        <div class="post-entry">
+            <a href='{% url "post_detail" post.pk%}'>
+                <div class="post-content">
+                    {% if post.image %}
+                        <div class="post-image">
+                            <img class="post-grid-image" src="{{ post.image.url }}" alt="{{ post.title }} image">
+                        </div>
+                    {% endif %}
+                    <div class="post-details">
+                        <h2>{{ post.title }}</h2>
+                        <p>{{ post.body }}</p>
+                    </div>
+                    {% if post.latitude and post.longitude %}
+                        <div id="post-location-{{ post.pk }}" class="post-location" style="height: 100px; width: 100%;">
+                            <script>
+                                var postMap = L.map('post-location-{{ post.pk }}').setView([{{ post.latitude }}, {{ post.longitude }}], 13);
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                }).addTo(postMap);
+                                L.marker([{{ post.latitude }}, {{ post.longitude }}]).addTo(postMap);
+                                postMap.dragging.disable();
+                                postMap.touchZoom.disable();
+                                postMap.doubleClickZoom.disable();
+                                postMap.scrollWheelZoom.disable();
+                                postMap.boxZoom.disable();
+                                postMap.keyboard.disable();
+                            </script>
+                        </div>
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+
+        {% endfor %}
+    </div>
+    {% endif %}
+
+{% endblock content %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ object.username }}</h1>
+  <p>{{ object.email }}</p>
+
+  <p>
+    <strong>{{ followers_count }} Followers</strong> -
+    <strong>{{ following_count }} Following</strong>
+  </p>
+
+  {% if request.user != object %}
+    <form method="POST" action="{% url 'follow' username=object.username %}">
+      {% csrf_token %}
+      {% if request.user in object.followers.all %}
+        <button type="submit" class="btn btn-danger">Unfollow</button>
+      {% else %}
+        <button type="submit" class="btn btn-primary">Follow</button>
+      {% endif %}
+    </form>
+  {% endif %}
+
+  <h3>Memories:</h3>
+  <ul>
+  {% for post in user_posts %}
+    <li>
+      <a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a>
+    </li>
+  {% empty %}
+    <p>No memories have been shared by this user yet.</p>
+  {% endfor %}
+  </ul>
+{% endblock %}
