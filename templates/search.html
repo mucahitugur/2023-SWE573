@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Search</h2>
+    <form action="{% url 'search' %}" method="GET">
+        {{ form.search }}
+        {{ form.search_type }}
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <h2>Search Results</h2>
+    <h3>Users:</h3>
+    {% if user_results %}
+        <ul>
+            {% for user in user_results %}
+                <li>
+                    <a href="{% url 'user_profile' user.username %}">
+                        {{ user.username }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No user results found.</p>
+    {% endif %}
+    
+    <h3>Posts:</h3>
+    {% if post_results %}
+        <ul>
+            {% for post in post_results %}
+                <li>
+                    <a href="{% url 'post_detail' post.pk %}">
+                        {{ post.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No post results found.</p>
+    {% endif %}
+{% endblock content %}
