@@ -4,6 +4,10 @@
   <h1>{{ object.username }}</h1>
   <p>{{ object.email }}</p>
 
+  {% if request.user == object %}
+    <p><a href="{% url 'update_profile' %}">Update Profile Picture</a></p>
+  {% endif %}
+
   <p>
     <strong>{{ followers_count }} Followers</strong> -
     <strong>{{ following_count }} Following</strong>
