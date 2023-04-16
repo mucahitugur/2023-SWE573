@@ -52,22 +52,15 @@
             </form>
         {% endif %}
         
-        <div class="post-footer">
-            <div class="post-info">
-                <p>Likes: {{ object.like_set.count }}</p>
-                <p>Comments: {{ object.comment_set.count }}</p>
-            </div>
-
-            <div class="post-comments">
-                <h3>Comments:</h3>
-                <ul>
-                {% for comment in object.comment_set.all %}
-                    <li>{{ comment.user.username }}: {{ comment.text }}</li>
-                {% empty %}
-                    <li>No comments</li>
-                {% endfor %}
-                </ul>
-            </div>
+        <div class="comments">
+            {% for comment in object.comments.all %}
+                <div class="comment">
+                    <div class="comment-author">{{ comment.author.username }}</div>
+                    <div class="comment-text">{{ comment.text }}</div>
+                </div>
+            {% empty %}
+                <p>No comments yet.</p>
+            {% endfor %}
         </div>
     </div>
 {% endblock content %}
