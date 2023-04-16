@@ -28,8 +28,46 @@
             </div>
         </div>
         {% if user == object.author %}
-            <p><a href="{% url 'post_edit' post.pk %}"> +Edit blog post </a></p>
-            <p><a href="{% url 'post_silme' post.pk %}"> Silme blog post </a></p>
+            <p><a href="{% url 'post_edit' object.pk %}"> +Edit blog post </a></p>
+            <p><a href="{% url 'post_silme' object.pk %}"> Silme blog post </a></p>
         {% endif %}
+
+        {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'add_comment' object.pk %}">
+                {% csrf_token %}
+                <label for="text">Comment:</label>
+                <textarea id="text" name="text"></textarea>
+                <button type="submit">Submit</button>
+            </form>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'like_post' object.pk %}">
+                {% csrf_token %}
+                {% if user_likes %}
+                    <button type="submit">Unlike</button>
+                {% else %}
+                    <button type="submit">Like</button>
+                {% endif %}
+            </form>
+        {% endif %}
+        
+        <div class="post-footer">
+            <div class="post-info">
+                <p>Likes: {{ object.like_set.count }}</p>
+                <p>Comments: {{ object.comment_set.count }}</p>
+            </div>
+
+            <div class="post-comments">
+                <h3>Comments:</h3>
+                <ul>
+                {% for comment in object.comment_set.all %}
+                    <li>{{ comment.user.username }}: {{ comment.text }}</li>
+                {% empty %}
+                    <li>No comments</li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
     </div>
 {% endblock content %}

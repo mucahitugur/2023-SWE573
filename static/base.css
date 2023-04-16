@@ -132,6 +132,18 @@ body {
     position: relative;
     margin-right: 15px;
 }
+.post-location {
+    width: 200px;
+    height: 200px;
+    margin-right: 15px;
+}
+
+.post-location img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 
 .post-grid-image {
     width: 100%;
@@ -161,7 +173,7 @@ body {
     display: -webkit-box;
     -webkit-line-clamp: 6; 
     -webkit-box-orient: vertical;
-    height: 100px; /* Change this value to match the total height of the displayed lines */
+    height: 200px; /* Change this value to match the total height of the displayed lines */
     line-height: 20px;
 }
 

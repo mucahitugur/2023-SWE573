@@ -9,32 +9,50 @@
         <div class="post-entry">
             <a href='{% url "post_detail" post.pk%}'>
                 <div class="post-content">
-                    {% if post.image %}
-                        <div class="post-image">
-                            <img class="post-grid-image" src="{{ post.image.url }}" alt="{{ post.title }} image">
-                        </div>
-                    {% endif %}
                     <div class="post-details">
                         <h2>{{ post.title }}</h2>
                         <p>{{ post.body }}</p>
+                        
+                        <!-- Display the number of likes -->
+                        <p>Likes: {{ post.like_set.count }}</p>
+
+                        <!-- Display the number of comments -->
+                        <p>Comments: {{ post.comment_set.count }}</p>
+
+                        <!-- Display comments -->
+                        <h3>Comments:</h3>
+                        <ul>
+                        {% for comment in post.comment_set.all %}
+                            <li>{{ comment.user.username }}: {{ comment.text }}</li>
+                        {% empty %}
+                            <li>No comments</li>
+                        {% endfor %}
+                        </ul>
                     </div>
-                    {% if post.latitude and post.longitude %}
-                        <div id="post-location-{{ post.pk }}" class="post-location" style="height: 100px; width: 100%;">
-                            <script>
-                                var postMap = L.map('post-location-{{ post.pk }}').setView([{{ post.latitude }}, {{ post.longitude }}], 13);
-                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                }).addTo(postMap);
-                                L.marker([{{ post.latitude }}, {{ post.longitude }}]).addTo(postMap);
-                                postMap.dragging.disable();
-                                postMap.touchZoom.disable();
-                                postMap.doubleClickZoom.disable();
-                                postMap.scrollWheelZoom.disable();
-                                postMap.boxZoom.disable();
-                                postMap.keyboard.disable();
-                            </script>
-                        </div>
-                    {% endif %}
+                    <div class="media-container">
+                        {% if post.image %}
+                            <div class="post-image">
+                                <img class="post-grid-image" src="{{ post.image.url }}" alt="{{ post.title }} image">
+                            </div>
+                        {% endif %}
+                        {% if post.latitude and post.longitude %}
+                            <div id="post-location-{{ post.pk }}" class="post-location">
+                                <script>
+                                    var postMap = L.map('post-location-{{ post.pk }}').setView([{{ post.latitude }}, {{ post.longitude }}], 13);
+                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                    }).addTo(postMap);
+                                    L.marker([{{ post.latitude }}, {{ post.longitude }}]).addTo(postMap);
+                                    postMap.dragging.disable();
+                                    postMap.touchZoom.disable();
+                                    postMap.doubleClickZoom.disable();
+                                    postMap.scrollWheelZoom.disable();
+                                    postMap.boxZoom.disable();
+                                    postMap.keyboard.disable();
+                                </script>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </a>
         </div>
