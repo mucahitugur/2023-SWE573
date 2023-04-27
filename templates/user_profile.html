@@ -14,7 +14,7 @@
   </p>
 
   {% if request.user != object %}
-    <form method="POST" action="{% url 'follow' username=object.username %}">
+    <form method="POST" action="{% url 'follow_user' username=object.username %}">
       {% csrf_token %}
       {% if request.user in object.followers.all %}
         <button type="submit" class="btn btn-danger">Unfollow</button>

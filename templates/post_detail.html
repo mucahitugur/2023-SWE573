@@ -26,10 +26,22 @@
                     <p>{{ object.body }}</p>
                 </div>
             </div>
+            {% if object.latitude and object.longitude %}
+                <div id="map" style="height: 300px;"></div>
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+                <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+                <script>
+                    var map = L.map('map').setView([{{ object.latitude }}, {{ object.longitude }}], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+                    var marker = L.marker([{{ object.latitude }}, {{ object.longitude }}]).addTo(map);
+                </script>
+            {% endif %}
         </div>
         {% if user == object.author %}
             <p><a href="{% url 'post_edit' object.pk %}"> +Edit blog post </a></p>
-            <p><a href="{% url 'post_silme' object.pk %}"> Silme blog post </a></p>
+            <p><a href="{% url 'post_delete' object.pk %}"> Silme blog post </a></p>
         {% endif %}
 
         {% if user.is_authenticated %}

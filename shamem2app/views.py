@@ -12,6 +12,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from .models import Post, Like, Comment
+from geopy.geocoders import Nominatim
 
 
 class BlogListView(LoginRequiredMixin, ListView):
@@ -36,10 +37,6 @@ class BlogListView(LoginRequiredMixin, ListView):
 
 
 
-
-
-
-
 class BlogDetailView(DetailView):
     model = Post
     template_name = 'post_detail.html'
@@ -47,11 +44,18 @@ class BlogDetailView(DetailView):
 class BlogCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
-    template_name = "post_yeni.html"
+    template_name = "post_new.html"
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
+        post = form.save(commit=False)
+        post.author = self.request.user
+        geolocator = Nominatim(user_agent="shamem2")
+        location = geolocator.geocode(post.location)
+        if location:
+            post.latitude = location.latitude
+            post.longitude = location.longitude
+        post.save()
+        return redirect('post_detail', pk=post.pk)
 
 class BlogUpdateView(UpdateView):
     model = Post
@@ -60,7 +64,7 @@ class BlogUpdateView(UpdateView):
 
 class BlogDeleteView(DeleteView):
     model = Post
-    template_name = "post_silme.html"
+    template_name = "post_delete.html"
     success_url = reverse_lazy("home")
 
 @login_required

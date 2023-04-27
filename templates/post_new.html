@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1> New Post </h1>
+    <form action="" method="post" enctype="multipart/form-data"> {% csrf_token %}
+        {{form.as_p}}
+        <div id="map" style="height: 300px;"></div>
+        <input id="location-search" type="text" placeholder="Search location" />
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script>
+            var map = L.map('map').setView([51.505, -0.09], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            var marker;
+            map.on('click', function(e) {
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                marker = L.marker(e.latlng).addTo(map);
+                document.getElementById('id_latitude').value = e.latlng.lat;
+                document.getElementById('id_longitude').value = e.latlng.lng;
+            });
+
+            var opencageApiKey = 'YOUR_API_KEY'; // Replace with your OpenCage API key
+            var input = document.getElementById('location-search');
+            input.addEventListener('change', function() {
+                var searchText = input.value;
+                var url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(searchText)}&key=${opencageApiKey}`;
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.results && data.results.length > 0) {
+                            var lat = data.results[0].geometry.lat;
+                            var lng = data.results[0].geometry.lng;
+                            map.setView([lat, lng], 13);
+                            if (marker) {
+                                map.removeLayer(marker);
+                            }
+                            marker = L.marker([lat, lng]).addTo(map);
+                            document.getElementById('id_latitude').value = lat;
+                            document.getElementById('id_longitude').value = lng;
+                        }
+                    })
+                    .catch(error => console.error(error));
+            });
+        </script>
+        <input type="submit" value="Save"/>
+    </form>
+{% endblock content %}

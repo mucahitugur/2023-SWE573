@@ -7,36 +7,26 @@
         {% for post in object_list %}
         
         <div class="post-entry">
-            <a href='{% url "post_detail" post.pk%}'>
-                <div class="post-content">
-                    <div class="post-details">
-                        <h2>{{ post.title }}</h2>
-                        <p>{{ post.body }}</p>
-                        
-                        <!-- Display the number of likes -->
-                        <p>Likes: {{ post.like_set.count }}</p>
+            <div class="post-content">
+                <a href='{% url "post_detail" post.pk%}'>
+                    <h2>{{ post.title }}</h2>
+                </a>
+                <p>{{ post.body }}</p>
+                
+                <!-- Display the number of likes -->
+                <p>Likes: {{ post.like_set.count }}</p>
 
-                        <!-- Display the number of comments -->
-                        <p>Comments: {{ post.comment_set.count }}</p>
-
-                        <!-- Display comments -->
-                        <h3>Comments:</h3>
-                        <ul>
-                        {% for comment in post.comment_set.all %}
-                            <li>{{ comment.user.username }}: {{ comment.text }}</li>
-                        {% empty %}
-                            <li>No comments</li>
-                        {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="media-container">
+                <div class="post-elements">
+                    <div class="post-text">
                         {% if post.image %}
                             <div class="post-image">
                                 <img class="post-grid-image" src="{{ post.image.url }}" alt="{{ post.title }} image">
                             </div>
                         {% endif %}
-                        {% if post.latitude and post.longitude %}
-                            <div id="post-location-{{ post.pk }}" class="post-location">
+                    </div>
+                    {% if post.latitude and post.longitude %}
+                        <div class="post-location">
+                            <div id="post-location-{{ post.pk }}" style="width: 100%; height: 300px;">
                                 <script>
                                     var postMap = L.map('post-location-{{ post.pk }}').setView([{{ post.latitude }}, {{ post.longitude }}], 13);
                                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -51,10 +41,23 @@
                                     postMap.keyboard.disable();
                                 </script>
                             </div>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
                 </div>
-            </a>
+
+                <!-- Display comments -->
+                <div class="post-comments">
+                    <h3>Comments:</h3>
+                    <ul>
+                        {% for comment in post.comment_set.all %}
+                            <li><strong>{{ comment.author.user.username }}</strong>: {{ comment.text }}</li>
+                        {% empty %}
+                            <li>No comments yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <a href="{% url 'post_detail' post.pk %}">View Post</a>
+            </div>
         </div>
 
         {% endfor %}
