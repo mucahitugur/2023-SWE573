@@ -11,7 +11,8 @@ from .views import (
     search,
     post_detail,
     like_post,
-    add_comment
+    add_comment,
+    PostsView,  # make sure to import this
 )
 
 urlpatterns = [
@@ -26,4 +27,5 @@ urlpatterns = [
     path('search/', search, name='search'),
     path('post/<int:post_id>/like/', like_post, name='like_post'),
     path('post/<int:post_id>/comment/', add_comment, name='add_comment'),
+    path('posts/tag/<slug:tag_slug>/', PostsView.as_view(), name='posts_by_tag'),
 ]

@@ -13,6 +13,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from .models import Post, Like, Comment
 from geopy.geocoders import Nominatim
+from django.views import View
+from .models import Post
 
 
 class BlogListView(LoginRequiredMixin, ListView):
@@ -20,26 +22,21 @@ class BlogListView(LoginRequiredMixin, ListView):
     template_name = 'home.html'
 
     def get_queryset(self):
-        # Get the list of users the current user is following.
         following_users = User.objects.filter(followers__follower=self.request.user)
-
-        # Get the posts from the current user and the users they are following.
         following_posts = Post.objects.filter(author__in=following_users)
         user_posts = Post.objects.filter(author=self.request.user)
-
-        # Fetch related data in a single query
         following_posts = following_posts.select_related('author').prefetch_related('like_set', 'comment_set')
         user_posts = user_posts.select_related('author').prefetch_related('like_set', 'comment_set')
-
-        # Merge the results
         queryset = list(following_posts) + list(user_posts)
         return queryset
-
-
 
 class BlogDetailView(DetailView):
     model = Post
     template_name = 'post_detail.html'
+
+from django.core.exceptions import ValidationError
+
+from django.core.exceptions import ValidationError
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -49,13 +46,19 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.author = self.request.user
-        geolocator = Nominatim(user_agent="shamem2")
-        location = geolocator.geocode(post.location)
-        if location:
-            post.latitude = location.latitude
-            post.longitude = location.longitude
+        latitude = form.cleaned_data.get('latitude')
+        longitude = form.cleaned_data.get('longitude')
+        if latitude and longitude:
+            post.latitude = latitude
+            post.longitude = longitude
+        else:
+            form.add_error(None, ValidationError("Please select a location on the map."))
+            return self.form_invalid(form)
         post.save()
+        form.save_m2m()  # This line is important for saving tags
         return redirect('post_detail', pk=post.pk)
+
+
 
 class BlogUpdateView(UpdateView):
     model = Post
@@ -93,7 +96,16 @@ class UserProfileView(DetailView):
         context['followers_count'] = user.followers.count()
         context['following_count'] = user.following.count()
         return context
-    
+
+class PostsView(View):
+    def get(self, request, tag_slug=None):
+                if tag_slug:
+                  posts = Post.objects.filter(tags__slug=tag_slug)
+                else:
+                  posts = Post.objects.all()
+                return render(request, 'home.html', {'object_list': posts})
+
+
 class MyProfileView(DetailView):
     model = User
     template_name = 'user_profile.html'
@@ -109,22 +121,25 @@ class MyProfileView(DetailView):
         context['followers_count'] = user.followers.count()
         return context
 
-# User search function
 def search(request):
     query = request.GET.get('search')
     search_type = request.GET.get('search_type')
+
+    print(f"Query: {query}")
+    print(f"Search type: {search_type}")
+
     user_results = []
     post_results = []
 
     if query:
         if search_type == 'user':
             user_results = User.objects.filter(Q(username__icontains=query))
-
         elif search_type == 'location':
             post_results = Post.objects.filter(Q(location__icontains=query))
-
         elif search_type == 'tag':
             post_results = Post.objects.filter(Q(tags__name__icontains=query)).distinct()
+
+    print(f"Post results: {post_results}")
 
     form = SearchForm(request.GET or None)
 
@@ -135,6 +150,7 @@ def search(request):
     }
 
     return render(request, 'search.html', context)
+
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     user_likes = False
@@ -156,6 +172,7 @@ def like_post(request, post_id):
     if not created:
         like.delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 @login_required
 def add_comment(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
@@ -163,5 +180,4 @@ def add_comment(request, post_id):
         text = request.POST.get('text')
         Comment.objects.create(user=request.user, post=post, text=text)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 

@@ -4,6 +4,9 @@
     <h1> Edit Post </h1>
     <form action="" method="post" enctype="multipart/form-data"> {% csrf_token %}
         {{form.as_p}}
+        <h3>Tags</h3>
+        {{ form.tags.label_tag }}
+        {{ form.tags }}
         <input type="submit" value="Update"/>
     </form>
 {% endblock content %}

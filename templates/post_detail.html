@@ -39,9 +39,13 @@
                 </script>
             {% endif %}
         </div>
+        <div class="post-stats">
+            <span>Likes: {{ object.likes.all.count }}</span>
+            <span>Comments: {{ object.comments.all.count }}</span>
+        </div>
         {% if user == object.author %}
-            <p><a href="{% url 'post_edit' object.pk %}"> +Edit blog post </a></p>
-            <p><a href="{% url 'post_delete' object.pk %}"> Silme blog post </a></p>
+            <p><a href="{% url 'post_edit' object.pk %}"> +Edit  post </a></p>
+            <p><a href="{% url 'post_delete' object.pk %}"> Delete post </a></p>
         {% endif %}
 
         {% if user.is_authenticated %}
@@ -67,12 +71,19 @@
         <div class="comments">
             {% for comment in object.comments.all %}
                 <div class="comment">
-                    <div class="comment-author">{{ comment.author.username }}</div>
+                    <div class="comment-author">
+                        <img src="{{ comment.author.profile_picture.url }}" alt="{{ comment.author.username }}'s profile picture" class="profile-picture">
+                        {{ comment.author.username }}
+                    </div>
                     <div class="comment-text">{{ comment.text }}</div>
                 </div>
-            {% empty %}
+                {% empty %}
                 <p>No comments yet.</p>
             {% endfor %}
         </div>
     </div>
 {% endblock content %}
+
+
+    
+                   

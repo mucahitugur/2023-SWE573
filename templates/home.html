@@ -1,67 +1,93 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-    {% if user.is_authenticated %}
-    <div class="posts-grid">
-        {% for post in object_list %}
-        
-        <div class="post-entry">
-            <div class="post-content">
-                <a href='{% url "post_detail" post.pk%}'>
-                    <h2>{{ post.title }}</h2>
-                </a>
-                <p>{{ post.body }}</p>
-                
-                <!-- Display the number of likes -->
-                <p>Likes: {{ post.like_set.count }}</p>
-
-                <div class="post-elements">
-                    <div class="post-text">
-                        {% if post.image %}
-                            <div class="post-image">
-                                <img class="post-grid-image" src="{{ post.image.url }}" alt="{{ post.title }} image">
-                            </div>
-                        {% endif %}
-                    </div>
-                    {% if post.latitude and post.longitude %}
-                        <div class="post-location">
-                            <div id="post-location-{{ post.pk }}" style="width: 100%; height: 300px;">
-                                <script>
-                                    var postMap = L.map('post-location-{{ post.pk }}').setView([{{ post.latitude }}, {{ post.longitude }}], 13);
-                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                    }).addTo(postMap);
-                                    L.marker([{{ post.latitude }}, {{ post.longitude }}]).addTo(postMap);
-                                    postMap.dragging.disable();
-                                    postMap.touchZoom.disable();
-                                    postMap.doubleClickZoom.disable();
-                                    postMap.scrollWheelZoom.disable();
-                                    postMap.boxZoom.disable();
-                                    postMap.keyboard.disable();
-                                </script>
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-
-                <!-- Display comments -->
-                <div class="post-comments">
-                    <h3>Comments:</h3>
-                    <ul>
-                        {% for comment in post.comment_set.all %}
-                            <li><strong>{{ comment.author.user.username }}</strong>: {{ comment.text }}</li>
-                        {% empty %}
-                            <li>No comments yet.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <a href="{% url 'post_detail' post.pk %}">View Post</a>
-            </div>
+  {% if user.is_authenticated %}
+    {% for post in object_list %}
+      <div class="card mb-4">
+        <!-- Post Name -->
+        <div class="card-header">
+          <a href='{% url "post_detail" post.pk%}'>
+            <h2 class="card-title">{{ post.title }}</h2>
+          </a>
         </div>
+        <div class="row">
+          <!-- Post Writings -->
+          <div class="col-6">
+            <div class="card-body">
+              <p class="card-text"><strong>Created by:</strong> {{ post.author.username }}</p>
+              <p class="card-text">{{ post.body }}</p>
+              
+              <!-- Display the timeline -->
+              <p><strong>Timeline Type:</strong> {{ post.timeline_type }}</p>
+              {% if post.timeline_type == 'exact_date' and post.exact_date %}
+                <p><strong>Exact Date:</strong> {{ post.exact_date }}</p>
+              {% elif post.timeline_type == 'decade' and post.decade %}
+                <p><strong>Decade:</strong> {{ post.decade }}</p>
+              {% elif post.timeline_type == 'season' and post.season %}
+                <p><strong>Season:</strong> {{ post.season }}</p>
+              {% endif %}
+              
+              <!-- Display the number of likes -->
+              <p>Likes: {{ post.like_set.count }}</p>
 
-        {% endfor %}
-    </div>
-    {% endif %}
+              <!-- Display the post tags -->
+              <div>
+                <strong>Tags:</strong>
+                {% for tag in post.tags.all %}
+                  <span class="badge badge-primary">{{ tag }}</span>
+                {% empty %}
+                  <span>No tags</span>
+                {% endfor %}
+              </div>
 
+              <!-- Comments -->
+              <div class="card-footer">
+                <h6>Comments:</h6>
+                <ul>
+                  {% for comment in post.comment_set.all %}
+                    <li><strong>{{ comment.user.username }}</strong>: {{ comment.text }}</li>
+                  {% empty %}
+                    <li>No comments yet.</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        
+          <!-- Photo and Location -->
+          <div class="col-6">
+            <!-- Display the image -->
+            {% if post.image %}
+              <img class="card-img-top" src="{{ post.image.url }}" alt="{{ post.title }} image">
+            {% endif %}
+            <!-- Display the map -->
+            {% if post.latitude and post.longitude %}
+              <div id="post-location-{{ post.pk }}" style="width: 100%; height: 300px;"></div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+      {% for post in object_list %}
+        {% if post.latitude and post.longitude %}
+          var postMap = L.map('post-location-{{ post.pk }}').setView([{{ post.latitude }}, {{ post.longitude }}], 13);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(postMap);
+          L.marker([{{ post.latitude }}, {{ post.longitude }}]).addTo(postMap);
+          postMap.dragging.disable();
+          postMap.touchZoom.disable();
+          postMap.doubleClickZoom.disable();
+          postMap.scrollWheelZoom.disable();
+          postMap.boxZoom.disable();
+          postMap.keyboard.disable();
+        {% endif %}
+      {% endfor %}
+    });
+    </script>
+  {% endif %}
 {% endblock content %}

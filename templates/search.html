@@ -32,6 +32,15 @@
                     <a href="{% url 'post_detail' post.pk %}">
                         {{ post.title }}
                     </a>
+                    <p>Location: {{ post.location }}</p>
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" alt="{{ post.title }}" style="width: 200px; height: 200px;">
+                    {% endif %}
+                    <p>Tags:
+                        {% for tag in post.tags.all %}
+                            <span>{{ tag }}</span>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
                 </li>
             {% endfor %}
         </ul>

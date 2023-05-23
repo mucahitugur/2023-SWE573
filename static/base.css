@@ -105,11 +105,13 @@ body {
 /* New styles for the home page grid layout */
 .posts-grid {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 10px;
+    justify-content: space-between;
 }
 
 .post-entry {
+    width: calc(33% - 20px);
     display: flex;
     flex-direction: column;
     background-color: #fff;
@@ -188,4 +190,20 @@ body {
     
 .search-container button:hover {
     background-color: #dbdbdb;
+}
+
+.post-image-text {
+    display: flex;
+    gap: 20px;
+}
+
+.post-image {
+    flex-shrink: 0;
+    width: 300px;
+}
+
+.post-image img {
+    width: 100%;
+    height: auto;
+    display: block;
 }
