@@ -128,22 +128,25 @@ class MyProfileView(DetailView):
 def search(request):
     query = request.GET.get('search')
     search_type = request.GET.get('search_type')
-
-    print(f"Query: {query}")
-    print(f"Search type: {search_type}")
+    timeline_type = request.GET.get('timeline_type')
+    timeline_query = request.GET.get('timeline_query')
 
     user_results = []
     post_results = []
 
-    if query:
-        if search_type == 'user':
-            user_results = User.objects.filter(Q(username__icontains=query))
-        elif search_type == 'location':
-            post_results = Post.objects.filter(Q(location__icontains=query))
-        elif search_type == 'tag':
-            post_results = Post.objects.filter(Q(tags__name__icontains=query)).distinct()
-
-    print(f"Post results: {post_results}")
+    if search_type == 'user':
+        user_results = User.objects.filter(Q(username__icontains=query))
+    elif search_type == 'location':
+        post_results = Post.objects.filter(Q(location__icontains=query))
+    elif search_type == 'tag':
+        post_results = Post.objects.filter(Q(tags__name__icontains=query)).distinct()
+    elif search_type == 'time' and timeline_type and timeline_query:
+        if timeline_type == 'exact_date':
+            post_results = Post.objects.filter(Q(timeline_type='exact_date', exact_date=timeline_query))
+        elif timeline_type == 'decade':
+            post_results = Post.objects.filter(Q(timeline_type='decade', decade=timeline_query))
+        elif timeline_type == 'season':
+            post_results = Post.objects.filter(Q(timeline_type='season', season=timeline_query))
 
     form = SearchForm(request.GET or None)
 
@@ -154,6 +157,7 @@ def search(request):
     }
 
     return render(request, 'search.html', context)
+
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)

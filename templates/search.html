@@ -5,6 +5,9 @@
     <form action="{% url 'search' %}" method="GET">
         {{ form.search }}
         {{ form.search_type }}
+        {{ form.timeline_type }}
+        {{ form.timeline_query }}
+
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
 

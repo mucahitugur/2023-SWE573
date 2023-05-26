@@ -3,9 +3,9 @@
 {% block content %}
     <h1> New Post </h1>
     <form action="" method="post" enctype="multipart/form-data"> {% csrf_token %}
-        <!-- render all fields except for tags -->
+        <!-- render all fields except for tags, latitude and longitude -->
         {% for field in form %}
-            {% if not field.name == "tags" %}
+            {% if not field.name == "tags" and not field.name == "latitude" and not field.name == "longitude" %}
                 <p id="{{ field.name }}-container">
                     {{ field.label_tag }}
                     {{ field }}
@@ -30,9 +30,14 @@
         </p>
         <div id="map" style="height: 300px;"></div>
         <input id="location-search" type="text" placeholder="Search location" />
+
+        <!-- Insert the hidden fields for latitude and longitude here -->
+        {{ form.latitude }}
+        {{ form.longitude }}
+
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
         <script>
-            var map = L.map('map').setView([0, 0], 2); // The '2' here is the zoom level, adjust as needed
+            var map = L.map('map').setView([0, 0], 2);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -45,8 +50,6 @@
                 marker = L.marker(e.latlng).addTo(map);
                 document.getElementById('id_latitude').value = e.latlng.lat;
                 document.getElementById('id_longitude').value = e.latlng.lng;
-
-                console.log("Map clicked, set latitude to", e.latlng.lat, "and longitude to", e.latlng.lng);  // Debug log
             });
 
             var input = document.getElementById('location-search');
@@ -66,10 +69,6 @@
                             marker = L.marker([lat, lng]).addTo(map);
                             document.getElementById('id_latitude').value = lat;
                             document.getElementById('id_longitude').value = lng;
-                            document.getElementById('id_location').value = searchText;
-
-                            
-                            console.log("Location search, set latitude to", lat, "and longitude to", lng);  // Debug log
                         }
                     })
                     .catch(error => console.error(error));
@@ -99,10 +98,49 @@
             }
 
             $('#id_timeline_type').change(handleTimelineTypeChange);
-            handleTimelineTypeChange();  // Call this once to set the initial state
+            handleTimelineTypeChange();
         </script>
 
         <input type="submit" value="Save"/>
     </form>
 {% endblock content %}
 
+{% block extra_js %}
+<!-- Load jQuery UI -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+    $( function() {
+        $( "#id_exact_date" ).datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1900:2099",
+            defaultDate: new Date(1900, 0, 1)
+        });
+    } );
+
+    function handleTimelineTypeChange() {
+        const timelineTypeSelect = $('#id_timeline_type');
+        const selectedTimelineType = timelineTypeSelect.val();
+
+        const exactDateContainer = $('#exact_date-container');
+        const decadeContainer = $('#decade-container');
+        const seasonContainer = $('#season-container');
+
+        exactDateContainer.hide();
+        decadeContainer.hide();
+        seasonContainer.hide();
+
+        if (selectedTimelineType === 'exact_date') {
+            exactDateContainer.show();
+        } else if (selectedTimelineType === 'decade') {
+            decadeContainer.show();
+        } else if (selectedTimelineType === 'season') {
+            seasonContainer.show();
+        }
+    }
+
+    $('#id_timeline_type').change(handleTimelineTypeChange);
+    handleTimelineTypeChange();
+</script>
+{% endblock %}
