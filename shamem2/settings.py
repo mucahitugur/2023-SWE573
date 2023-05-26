@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'shamem2.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'shamemdb',
+        'NAME': 'shamemdbd2',
         'USER': 'ShamemAppDb',
         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
         'HOST': 'localhost',

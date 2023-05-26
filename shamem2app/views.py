@@ -15,6 +15,7 @@ from .models import Post, Like, Comment
 from geopy.geocoders import Nominatim
 from django.views import View
 from .models import Post
+from django.contrib.auth import login, update_session_auth_hash, authenticate
 
 
 class BlogListView(LoginRequiredMixin, ListView):
@@ -51,11 +52,14 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
         if latitude and longitude:
             post.latitude = latitude
             post.longitude = longitude
+            geolocator = Nominatim(user_agent="geoapiExercises")
+            location = geolocator.reverse([latitude, longitude])
+            post.location = location.address
         else:
             form.add_error(None, ValidationError("Please select a location on the map."))
             return self.form_invalid(form)
         post.save()
-        form.save_m2m()  # This line is important for saving tags
+        #form.save_m2m()  
         return redirect('post_detail', pk=post.pk)
 
 
