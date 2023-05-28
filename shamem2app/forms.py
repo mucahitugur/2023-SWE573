@@ -3,7 +3,6 @@ from .models import Post, Tag
 from datetime import datetime
 
 class PostForm(forms.ModelForm):
-    # Add the new fields for timeline
     timeline_type = forms.ChoiceField(choices=Post.TIMELINE_CHOICES, widget=forms.Select)
     exact_date = forms.DateField(
         widget=forms.SelectDateWidget(years=range(1900, datetime.now().year+1)), 

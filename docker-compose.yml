@@ -1,0 +1,19 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: shamemdbd2
+      POSTGRES_USER: ShamemAppDb
+      POSTGRES_PASSWORD: Password1.
+
+  web:
+    build: .
+    command: bash -c " python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code
+    ports:
+      - 80:8000
+    depends_on:
+      - db

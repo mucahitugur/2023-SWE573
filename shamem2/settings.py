@@ -93,7 +93,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'shamemdbd2',
         'USER': 'ShamemAppDb',
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'PASSWORD': 'Password1.',
         'HOST': 'localhost',
         'PORT': '',
     }

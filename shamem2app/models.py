@@ -12,7 +12,7 @@ class Tag(models.Model):
         return self.name
 
 class Post(models.Model):
-    # Add the new fields for timeline
+    
     TIMELINE_CHOICES = [
         ('exact_date', 'Exact date'),
         ('decade', 'Decade'),
@@ -23,7 +23,7 @@ class Post(models.Model):
     decade = models.CharField(max_length=5, null=True, blank=True)
     season = models.CharField(max_length=10, null=True, blank=True)
 
-    # Existing fields
+    
     title = models.CharField(max_length=200)
     author = models.ForeignKey(
         'auth.User', on_delete=models.CASCADE,
